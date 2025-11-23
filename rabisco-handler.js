@@ -259,16 +259,38 @@ module.exports = (io, gameRooms) => {
           // Correct guess!
           handleCorrectGuess(room, player);
           return; // Don't show message in chat to avoid spoiling, show "Guessed correctly!"
-        } else if (cleanWord && similarity(cleanMessage, cleanWord) > 0.8) {
-           // Close call
-           socket.emit('chat_message', { 
-             id: Date.now(), 
-             text: `Está perto!`, 
-             author: 'Sistema', 
-             type: 'system-near' 
-           });
-           // Show original message? Maybe not if it's too close.
-           // Gartic shows message usually unless it's exact match.
+        } else {
+           // Check for close guess
+           // 1. High similarity (Levenshtein)
+           // 2. Word contained in message (e.g. "is it apple?") -> actually we usually want exact word, but Gartic checks if you typed ALMOST the word.
+           // Let's stick to:
+           // - Similarity > 0.75
+           // - Or if the word is short (>3 chars) and the message contains the word or vice versa? No, that reveals it.
+           // - Just Levenshtein for typos.
+           
+           const sim = similarity(cleanMessage, cleanWord);
+           
+           // Check if substring (e.g. user typed "caval" for "cavalo")
+           // Only if word is long enough
+           let isSubstring = false;
+           if (cleanWord.length >= 4 && cleanWord.includes(cleanMessage) && cleanMessage.length >= cleanWord.length - 2) {
+               isSubstring = true;
+           }
+
+           if (sim > 0.75 || isSubstring) {
+               // Notify ONLY this user
+               socket.emit('chat_message', { 
+                 id: Date.now(), 
+                 text: `Está perto!`, 
+                 author: 'Sistema', 
+                 type: 'system-near' 
+               });
+               
+               // Also show the message to everyone? 
+               // If it's close, usually we show it but tell the user they are close.
+               // Or we can hide it from others if it's REALLY close to avoid spoiling.
+               // Gartic: Shows message + "Está perto" toast.
+           }
         }
       }
 
