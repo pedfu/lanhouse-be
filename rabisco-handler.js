@@ -235,6 +235,20 @@ module.exports = (io, gameRooms) => {
       socket.to(roomCode).emit('new_stroke', stroke);
     });
 
+    socket.on('undo_stroke', ({ roomCode }) => {
+      const room = gameRooms[roomCode];
+      if (!room || room.status !== 'DRAWING') return;
+      if (room.currentDrawerId !== getUserId(socket)) return;
+
+      if (room.strokes.length > 0) {
+          room.strokes.pop();
+          // Broadcast full state or specific undo event?
+          // Broadcasting full state is safer to ensure sync
+          // Or emit 'undo_last_stroke'
+          rabiscoNamespace.to(roomCode).emit('stroke_undone');
+      }
+    });
+
     socket.on('clear_canvas', ({ roomCode }) => {
       const room = gameRooms[roomCode];
       if (!room || room.currentDrawerId !== getUserId(socket)) return;
