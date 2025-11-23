@@ -162,6 +162,23 @@ module.exports = (io, gameRooms) => {
     socket.on('give_hint', ({ roomCode }) => {
        const room = gameRooms[roomCode];
        if (!room || room.currentDrawerId !== getUserId(socket)) return;
+
+       const drawer = room.players.find(p => p.id === room.currentDrawerId);
+       if (!drawer) return;
+
+       // Check if drawer has enough points
+       if (drawer.score < GAME_CONFIG.HINT_PENALTY) {
+           const socketId = drawer.socketId;
+           if (socketId) {
+                rabiscoNamespace.to(socketId).emit('chat_message', {
+                    id: Date.now(),
+                    type: 'system-error',
+                    text: 'Pontos insuficientes para dar dica!',
+                    author: 'Sistema'
+                });
+           }
+           return;
+       }
        
        // Find unrevealed indices
        const word = room.currentWord;
@@ -178,9 +195,9 @@ module.exports = (io, gameRooms) => {
        const currentRevealed = room.hints.length;
        const limit = Math.ceil(totalRevealable * 0.3);
 
-       if (currentRevealed >= limit) {
+       if (currentRevealed >= limit && room.lengthRevealed) {
            // Send error to drawer
-           const drawerSocketId = room.players.find(p => p.id === room.currentDrawerId)?.socketId;
+           const drawerSocketId = drawer.socketId;
            if (drawerSocketId) {
                 rabiscoNamespace.to(drawerSocketId).emit('chat_message', {
                     id: Date.now(),
@@ -193,19 +210,9 @@ module.exports = (io, gameRooms) => {
        }
        
        // First hint reveals the length of the word (effectively just showing the empty slots)
-       if (room.hints.length === 0) {
-           // Just add a dummy hint marker that doesn't correspond to an index to signal "length revealed"
-           // Or better: Use a specific flag or state.
-           // Actually, user said "first hint always must be quantity of characters".
-           // This implies that BEFORE the first hint, the quantity of characters is HIDDEN.
-           // So we need a state `lengthRevealed`.
+       if (!room.lengthRevealed) {
            room.lengthRevealed = true;
-           
-           // Penalty for first hint (length reveal)?
-           const drawer = room.players.find(p => p.id === room.currentDrawerId);
-           if (drawer) {
-               drawer.score = Math.max(0, drawer.score - GAME_CONFIG.HINT_PENALTY);
-           }
+           drawer.score -= GAME_CONFIG.HINT_PENALTY;
            broadcastState(roomCode);
            return;
        }
@@ -214,11 +221,7 @@ module.exports = (io, gameRooms) => {
            const idx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
            room.hints.push(idx);
            
-           // Penalty?
-           const drawer = room.players.find(p => p.id === room.currentDrawerId);
-           if (drawer) {
-               drawer.score = Math.max(0, drawer.score - GAME_CONFIG.HINT_PENALTY);
-           }
+           drawer.score -= GAME_CONFIG.HINT_PENALTY;
 
            broadcastState(roomCode);
        }
