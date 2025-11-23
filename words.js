@@ -1,0 +1,53 @@
+module.exports = [
+  // FÁCIL (1 Ponto) - Objetos concretos, animais comuns, profissões simples
+  { text: "Abelha", difficulty: "EASY", category: "Animais" },
+  { text: "Banana", difficulty: "EASY", category: "Comida" },
+  { text: "Futebol", difficulty: "EASY", category: "Esportes" },
+  { text: "Doutor", difficulty: "EASY", category: "Profissões" },
+  { text: "Sol", difficulty: "EASY", category: "Natureza" },
+  { text: "Guitarra", difficulty: "EASY", category: "Música" },
+  { text: "Pizza", difficulty: "EASY", category: "Comida" },
+  { text: "Cachorro", difficulty: "EASY", category: "Animais" },
+  { text: "Avião", difficulty: "EASY", category: "Veículos" },
+  { text: "Relógio", difficulty: "EASY", category: "Objetos" },
+  { text: "Óculos", difficulty: "EASY", category: "Acessórios" },
+  { text: "Bebê", difficulty: "EASY", category: "Pessoas" },
+  { text: "Casa", difficulty: "EASY", category: "Construções" },
+  { text: "Árvore", difficulty: "EASY", category: "Natureza" },
+  { text: "Telefone", difficulty: "EASY", category: "Tecnologia" },
+
+  // MÉDIO (2 Pontos) - Lugares famosos, personagens conhecidos, ações, conceitos simples
+  { text: "Torre Eiffel", difficulty: "MEDIUM", category: "Lugares" },
+  { text: "Homem-Aranha", difficulty: "MEDIUM", category: "Personagens" },
+  { text: "Casamento", difficulty: "MEDIUM", category: "Eventos" },
+  { text: "Vampiro", difficulty: "MEDIUM", category: "Ficção" },
+  { text: "Internet", difficulty: "MEDIUM", category: "Tecnologia" },
+  { text: "Natal", difficulty: "MEDIUM", category: "Feriados" },
+  { text: "Sherlock Holmes", difficulty: "MEDIUM", category: "Personagens" },
+  { text: "Harry Potter", difficulty: "MEDIUM", category: "Personagens" },
+  { text: "Japão", difficulty: "MEDIUM", category: "Países" },
+  { text: "Guerra nas Estrelas", difficulty: "MEDIUM", category: "Filmes" },
+  { text: "Pikachu", difficulty: "MEDIUM", category: "Personagens" },
+  { text: "Michael Jackson", difficulty: "MEDIUM", category: "Famosos" },
+  { text: "Facebook", difficulty: "MEDIUM", category: "Marcas/Apps" },
+  { text: "Dinossauro", difficulty: "MEDIUM", category: "Animais/História" },
+  { text: "Zumbi", difficulty: "MEDIUM", category: "Ficção" },
+
+  // DIFÍCIL (3+ Pontos) - Expressões, filmes específicos, conceitos abstratos, títulos complexos
+  { text: "O Senhor dos Anéis", difficulty: "HARD", category: "Filmes/Livros" },
+  { text: "Titanic", difficulty: "HARD", category: "Filmes" },
+  { text: "Liberdade", difficulty: "HARD", category: "Conceitos" },
+  { text: "Revolução Francesa", difficulty: "HARD", category: "História" },
+  { text: "Matrix", difficulty: "HARD", category: "Filmes" },
+  { text: "Viagem no Tempo", difficulty: "HARD", category: "Sci-Fi" },
+  { text: "Game of Thrones", difficulty: "HARD", category: "Séries" },
+  { text: "Mona Lisa", difficulty: "HARD", category: "Arte" },
+  { text: "Albert Einstein", difficulty: "HARD", category: "Pessoas Históricas" },
+  { text: "Buraco Negro", difficulty: "HARD", category: "Ciência" },
+  { text: "Romeu e Julieta", difficulty: "HARD", category: "Literatura/Teatro" },
+  { text: "A Bela e a Fera", difficulty: "HARD", category: "Contos de Fadas" },
+  { text: "Big Bang", difficulty: "HARD", category: "Ciência" },
+  { text: "Capitalismo", difficulty: "HARD", category: "Conceitos" },
+  { text: "De Volta para o Futuro", difficulty: "HARD", category: "Filmes" }
+];
+
