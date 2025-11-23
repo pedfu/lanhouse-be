@@ -1,0 +1,15 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # roda a cada 10 minutos
+  workflow_dispatch: # permite rodar manualmente se quiser
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping server health check
+        run: |
+          curl -s --max-time 10 "https://lanhouse-be.onrender.com/health" || echo "Failed"
