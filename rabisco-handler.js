@@ -459,17 +459,48 @@ module.exports = (io, gameRooms) => {
       if (room.timeLeft <= 0) {
         clearInterval(room.timer);
         if (room.status === 'CHOOSING_WORD') {
-            // Auto choose
-            room.currentWord = room.wordOptions[0].text;
-            room.status = 'DRAWING';
-            room.timeLeft = GAME_CONFIG.DRAW_TIME;
-            startTimer(roomCode);
+            // Player fell asleep: Skip Turn
+            handleSkipTurn(room);
         } else if (room.status === 'DRAWING') {
             endTurn(room);
         }
         broadcastState(roomCode);
       }
     }, 1000);
+  }
+
+  function handleSkipTurn(room) {
+      // Notify everyone
+      rabiscoNamespace.to(room.code).emit('chat_message', {
+          id: Date.now(),
+          type: 'system-error',
+          text: 'Jogador dormiu no ponto e perdeu a vez!',
+          author: 'Sistema'
+      });
+
+      // Move to next drawer without scoring or revealing (since nothing to reveal)
+      const nextPlayer = getNextDrawer(room);
+      
+      // Check for game end conditions
+      const winner = room.players.find(p => p.score >= room.maxScore);
+      if (winner || room.round > room.maxRounds) {
+           room.status = 'GAME_END';
+           broadcastState(room.code);
+           return;
+      }
+
+      // Set up next turn
+      room.currentDrawerId = nextPlayer.id;
+      room.status = 'CHOOSING_WORD';
+      room.wordOptions = getRandomWords(3);
+      room.timeLeft = GAME_CONFIG.WORD_SELECTION_TIME;
+      room.strokes = [];
+      room.guessedPlayers = [];
+      room.sabotagesActive = {};
+      room.lengthRevealed = false;
+      
+      startTimer(room.code);
+      broadcastState(room.code);
   }
 
   function endTurn(room) {
