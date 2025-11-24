@@ -389,6 +389,44 @@ module.exports = (io, gameRooms) => {
       broadcastState(roomCode);
     });
 
+    socket.on('play_again', ({ roomCode }) => {
+      const room = gameRooms[roomCode];
+      if (!room || room.hostId !== getUserId(socket)) return;
+      
+      // Reset scores and inventory
+      room.players.forEach(p => {
+          p.score = 0;
+          p.coins = 0;
+          p.inventory = [];
+      });
+
+      // Reset game state
+      room.status = 'CHOOSING_WORD';
+      room.round = 1;
+      room.timeLeft = GAME_CONFIG.WORD_SELECTION_TIME;
+      room.strokes = [];
+      room.guessedPlayers = [];
+      room.hints = [];
+      room.sabotagesActive = {};
+      room.lengthRevealed = false;
+      
+      // Shuffle players
+      room.players.sort(() => 0.5 - Math.random());
+      room.currentDrawerId = room.players[0].id;
+      room.wordOptions = getRandomWords(3);
+
+      // Notify system
+       rabiscoNamespace.to(roomCode).emit('chat_message', {
+          id: Date.now(),
+          type: 'system',
+          text: 'O host iniciou uma nova partida!',
+          author: 'Sistema'
+      });
+
+      startTimer(roomCode);
+      broadcastState(roomCode);
+    });
+
     socket.on('im_stuck', ({ roomCode }) => {
       const room = gameRooms[roomCode];
       if (!room) return;
