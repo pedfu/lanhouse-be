@@ -389,6 +389,45 @@ module.exports = (io, gameRooms) => {
       broadcastState(roomCode);
     });
 
+    socket.on('im_stuck', ({ roomCode }) => {
+      const room = gameRooms[roomCode];
+      if (!room) return;
+
+      console.log(`[RABISCO] Emergency restart triggered for room ${roomCode}`);
+
+      if (room.timer) clearInterval(room.timer);
+
+      // Reset game state but keep scores and player order
+      room.status = 'CHOOSING_WORD';
+      room.round = 1;
+      
+      // Start from the first player (maintain order)
+      if (room.players.length > 0) {
+          room.currentDrawerId = room.players[0].id;
+      }
+      
+      room.wordOptions = getRandomWords(3);
+      room.timeLeft = GAME_CONFIG.WORD_SELECTION_TIME;
+      room.strokes = [];
+      room.guessedPlayers = [];
+      room.hints = [];
+      room.sabotagesActive = {};
+      room.lengthRevealed = false;
+      // Optional: Clear chat or keep it? Keeping it might be better for context.
+      // But let's clear system messages or old round info? 
+      // Let's keep chat history so they can see "Game restarted".
+
+      rabiscoNamespace.to(roomCode).emit('chat_message', {
+          id: Date.now(),
+          type: 'system-error',
+          text: 'Jogo reiniciado! (Estou travado acionado)',
+          author: 'Sistema'
+      });
+      
+      startTimer(roomCode);
+      broadcastState(roomCode);
+    });
+
     socket.on('disconnect', () => {
       // Handle disconnect
     });
